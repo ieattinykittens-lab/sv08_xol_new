@@ -1,7 +1,7 @@
 .env
 secrets.conf
 *.swp
-*.tmp
+.viminfo.tmp
 printer-[0-9]*_[0-9]*.cfg
 *.bak
 *.bkp
