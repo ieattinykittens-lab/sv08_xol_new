@@ -1,0 +1,36 @@
+[gcode_macro START_PRINT]
+gcode:
+
+	# This part fetches data from your slicer, such as bed temp, extruder temp, chamber temp, and the size of your printer.
+	{% set target_bed = params.BED_TEMP|int %}
+    	{% set target_extruder = params.EXTRUDER_TEMP|int %}
+    	{% set target_chamber = params.CHAMBER|default("40")|int %}
+    	{% set x_wait = printer.toolhead.axis_maximum.x|float / 2 %}
+    	{% set y_wait = printer.toolhead.axis_maximum.y|float / 2 %}
+
+	BED_MESH_CLEAR
+	SET_GCODE_OFFSET Z=0
+
+	G28
+	G0 Z2
+
+	M140 S {target_bed}
+	M109 S 150
+	M190 S {target_bed}
+	G4 P60000
+
+	CLEAN_NOZZLE
+
+	G28 Z METHOD=CONTACT CALIBRATE=1
+	GANTRY_LEVELING
+	BED_MESH_CALIBRATE RUNS=2
+
+	G28 Z METHOD=CONTACT CALIBRATE=0
+
+	M104 S {target_extruder}
+	M109 S {target_extruder}
+
+	SET_GCODE_OFFSET Z=0.06     ; add a little offset for hotend thermal expansion
+	#SET_GCODE_OFFSET Z_ADJUST={OFFSET}  ; apply optional material squish via slicer
+
+	LINE_PURGE
